@@ -12,7 +12,7 @@ function About() {
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Who We Are</h2>
             <div className="bg-white rounded-lg shadow-md p-8">
               <p className="text-gray-700 leading-relaxed mb-4">
-                InternHub is a platform dedicated to providing structured virtual internship programs 
+                InternVerse is a platform dedicated to providing structured virtual internship programs 
                 for students and aspiring professionals. We believe in learning through hands-on 
                 experience and real-world project work.
               </p>

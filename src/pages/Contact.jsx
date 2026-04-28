@@ -9,7 +9,7 @@ function Contact() {
             Have questions about our internship programs? We are happy to help.
           </p>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Email Us</h3>
-          <p className="text-blue-600 font-medium mb-6">swapnil572006@gmail.com</p>
+          <p className="text-blue-600 font-medium mb-6">build.uniconnect2025@gmail.com</p>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Response Time</h3>
           <p className="text-gray-700">
             We typically respond within 24 to 48 hours during business days.
