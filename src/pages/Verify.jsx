@@ -1,52 +1,102 @@
+import { useState } from 'react';
+
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Syne:wght@400;600;700&display=swap');
+  .iv-verify { background:#050810; min-height:100vh; font-family:'Syne',sans-serif; color:#e2e8f0; }
+  .iv-verify-hero { position:relative; overflow:hidden; padding:80px 40px 64px; }
+  .iv-verify-hero::before { content:''; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(99,102,241,0.14) 0%,transparent 70%); }
+  .iv-grid-bg { position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(99,102,241,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.05) 1px,transparent 1px);
+    background-size:60px 60px; }
+  .iv-verify-hero-content { position:relative; z-index:2; max-width:1200px; margin:0 auto; }
+  .iv-label { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:#6366f1; margin-bottom:12px; }
+  .iv-verify-hero h1 { font-family:'Orbitron',monospace; font-size:clamp(32px,5vw,52px); font-weight:900; color:#fff; margin:0 0 16px; }
+  .iv-verify-hero p { font-size:18px; color:#64748b; margin:0; max-width:520px; line-height:1.6; }
+  .iv-verify-body { max-width:680px; margin:0 auto; padding:60px 40px 80px; }
+  .iv-verify-card { background:#0a0f1e; border:1px solid rgba(255,255,255,0.06); border-radius:24px; padding:40px; position:relative; overflow:hidden; }
+  .iv-verify-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,#6366f1,#06b6d4); }
+  .iv-input-label { font-size:13px; font-weight:700; color:#94a3b8; margin-bottom:10px; display:block; letter-spacing:.05em; text-transform:uppercase; }
+  .iv-input {
+    width:100%; background:#070b14; border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px; padding:16px 18px; color:#e2e8f0;
+    font-family:'Syne',sans-serif; font-size:16px; outline:none; transition:all .3s;
+    letter-spacing:.05em;
+  }
+  .iv-input::placeholder { color:#1e293b; }
+  .iv-input:focus { border-color:rgba(99,102,241,.6); box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+  .iv-verify-btn {
+    width:100%; margin-top:20px; padding:15px; border-radius:12px;
+    background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:16px;
+    border:1px solid rgba(99,102,241,.5); cursor:pointer;
+    box-shadow:0 0 28px rgba(99,102,241,.3); transition:all .3s;
+  }
+  .iv-verify-btn:hover { box-shadow:0 0 44px rgba(99,102,241,.5); transform:translateY(-1px); }
+  .iv-result-card {
+    margin-top:24px; background:#070b14;
+    border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:28px;
+    display:flex; align-items:flex-start; gap:16px;
+  }
+  .iv-result-icon { width:44px; height:44px; border-radius:10px; flex-shrink:0;
+    background:rgba(99,102,241,.1); display:flex; align-items:center; justify-content:center; }
+  .iv-result-title { font-size:16px; font-weight:700; color:#e2e8f0; margin:0 0 6px; }
+  .iv-result-text { font-size:14px; color:#475569; margin:0; line-height:1.6; }
+  @media (max-width:640px) {
+    .iv-verify-hero { padding:60px 24px 48px; }
+    .iv-verify-body { padding:40px 24px 60px; }
+    .iv-verify-card { padding:24px; }
+  }
+`;
+
 function Verify() {
+  const [certId, setCertId] = useState('');
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-8">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Verify Certificate</h1>
-          <p className="text-lg text-gray-600">
-            Enter your certificate ID to verify the authenticity of your internship certificate.
-          </p>
+    <>
+      <style>{styles}</style>
+      <div className="iv-verify">
+        <div className="iv-verify-hero">
+          <div className="iv-grid-bg" />
+          <div className="iv-verify-hero-content">
+            <div className="iv-label">Authentication</div>
+            <h1>Verify Certificate</h1>
+            <p>Enter your certificate ID to verify the authenticity of your InternVerse internship certificate.</p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-6">
-            <label htmlFor="certificateId" className="block text-sm font-semibold text-gray-700 mb-2">
-              Certificate ID
-            </label>
+        <div className="iv-verify-body">
+          <div className="iv-verify-card">
+            <label htmlFor="certificateId" className="iv-input-label">Certificate ID</label>
             <input
               type="text"
               id="certificateId"
-              placeholder="Enter your certificate ID"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="iv-input"
+              placeholder="e.g. IV-2025-XXXXXX"
+              value={certId}
+              onChange={(e) => setCertId(e.target.value)}
             />
+            <button className="iv-verify-btn">
+              Verify Certificate →
+            </button>
           </div>
 
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-            Verify Certificate
-          </button>
-        </div>
-
-        {/* Result Card Layout (Static) */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg p-8 border-l-4 border-gray-300">
-          <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <div className="iv-result-card">
+            <div className="iv-result-icon">
+              <svg width="20" height="20" fill="none" stroke="#6366f1" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Verification Result</h3>
-              <p className="text-gray-600">
-                Enter a certificate ID and click "Verify Certificate" to see the verification result.
-              </p>
+            <div>
+              <p className="iv-result-title">Verification Result</p>
+              <p className="iv-result-text">Enter a certificate ID above and click "Verify Certificate" to check its authenticity.</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export default Verify;
-

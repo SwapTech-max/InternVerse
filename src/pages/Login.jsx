@@ -2,175 +2,134 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Syne:wght@400;600;700&display=swap');
+  .iv-auth-page {
+    background:#050810; min-height:100vh; font-family:'Syne',sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    padding:40px 24px; position:relative; overflow:hidden;
+  }
+  .iv-auth-page::before { content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(99,102,241,0.12) 0%,transparent 70%);
+    pointer-events:none; }
+  .iv-grid-bg { position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px);
+    background-size:60px 60px; }
+  .iv-auth-box {
+    position:relative; z-index:2; width:100%; max-width:440px;
+    background:#0a0f1e; border:1px solid rgba(99,102,241,.2);
+    border-radius:24px; padding:44px 40px; overflow:hidden;
+  }
+  .iv-auth-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,#6366f1,#06b6d4); }
+  .iv-auth-logo { display:flex; align-items:center; gap:10px; margin-bottom:36px; justify-content:center; }
+  .iv-auth-logo-icon { width:40px; height:40px; border-radius:10px;
+    background:linear-gradient(135deg,#6366f1,#4f46e5);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Orbitron',monospace; font-weight:700; font-size:16px; color:#fff;
+    box-shadow:0 0 20px rgba(99,102,241,.4); }
+  .iv-auth-logo-text { font-family:'Orbitron',monospace; font-weight:700; font-size:18px; color:#fff; }
+  .iv-auth-title { font-family:'Orbitron',monospace; font-size:26px; font-weight:700; color:#fff; text-align:center; margin:0 0 8px; }
+  .iv-auth-sub { font-size:15px; color:#475569; text-align:center; margin:0 0 36px; }
+  .iv-field { margin-bottom:20px; }
+  .iv-field-label { display:block; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-bottom:8px; }
+  .iv-input { width:100%; background:#070b14; border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; padding:14px 16px; color:#e2e8f0;
+    font-family:'Syne',sans-serif; font-size:15px; outline:none; transition:all .3s; }
+  .iv-input::placeholder { color:#1e293b; }
+  .iv-input:focus { border-color:rgba(99,102,241,.6); box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+  .iv-input-err { border-color:rgba(239,68,68,.4) !important; }
+  .iv-err { font-size:12px; color:#f87171; margin-top:5px; }
+  .iv-forgot { display:block; text-align:right; font-size:13px; font-weight:600; color:#6366f1; text-decoration:none; margin-top:8px; transition:color .2s; }
+  .iv-forgot:hover { color:#818cf8; }
+  .iv-auth-btn {
+    width:100%; margin-top:8px; padding:15px; border-radius:12px;
+    background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:16px;
+    border:1px solid rgba(99,102,241,.5); cursor:pointer;
+    box-shadow:0 0 28px rgba(99,102,241,.3); transition:all .3s;
+  }
+  .iv-auth-btn:hover:not(:disabled) { box-shadow:0 0 44px rgba(99,102,241,.5); transform:translateY(-1px); }
+  .iv-auth-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+  .iv-auth-divider { border:none; border-top:1px solid rgba(255,255,255,0.06); margin:28px 0; }
+  .iv-auth-footer { text-align:center; font-size:14px; color:#475569; }
+  .iv-auth-link { color:#a5b4fc; font-weight:700; text-decoration:none; transition:color .2s; }
+  .iv-auth-link:hover { color:#818cf8; }
+  .iv-global-err { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2); border-radius:10px; padding:12px 16px; font-size:14px; color:#f87171; text-align:center; margin-top:16px; }
+`;
+
 function Login() {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    setError('');
-    setLoading(true);
-
-    const newErrors = {
-      email: '',
-      password: ''
-    };
-
-    // Validate email
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Validate password
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
+    setError(''); setLoading(true);
+    const newErrors = { email: '', password: '' };
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Please enter a valid email';
+    if (!formData.password) newErrors.password = 'Password is required';
     setErrors(newErrors);
-
-    if (newErrors.email || newErrors.password) {
-      setLoading(false);
-      return;
-    }
-
+    if (newErrors.email || newErrors.password) { setLoading(false); return; }
     try {
-      const { error: supabaseError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password
-      });
-
-      if (supabaseError) {
-        setError(supabaseError.message || 'Invalid email or password.');
-      } else {
-        navigate('/');
-      }
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      const { error: supabaseError } = await supabase.auth.signInWithPassword({ email: formData.email, password: formData.password });
+      if (supabaseError) setError(supabaseError.message || 'Invalid email or password.');
+      else navigate('/');
+    } catch { setError('An unexpected error occurred. Please try again.'); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign In</h1>
-            <p className="text-gray-600">Welcome back to InternVerse</p>
+    <>
+      <style>{styles}</style>
+      <div className="iv-auth-page">
+        <div className="iv-grid-bg" />
+        <div className="iv-auth-box">
+          <div className="iv-auth-logo">
+            <div className="iv-auth-logo-icon">IV</div>
+            <span className="iv-auth-logo-text">InternVerse</span>
           </div>
+          <h1 className="iv-auth-title">Welcome Back</h1>
+          <p className="iv-auth-sub">Sign in to your account</p>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
+          <form onSubmit={handleLogin}>
+            <div className="iv-field">
+              <label className="iv-field-label">Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange}
+                className={`iv-input${errors.email ? ' iv-input-err' : ''}`} placeholder="your@email.com" />
+              {errors.email && <p className="iv-err">{errors.email}</p>}
             </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter your password"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
-              <div className="mt-2 text-right">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+            <div className="iv-field">
+              <label className="iv-field-label">Password</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange}
+                className={`iv-input${errors.password ? ' iv-input-err' : ''}`} placeholder="••••••••" />
+              {errors.password && <p className="iv-err">{errors.password}</p>}
+              <Link to="/forgot-password" className="iv-forgot">Forgot password?</Link>
             </div>
-
-            {/* Login Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
+            <button type="submit" disabled={loading} className="iv-auth-btn">
+              {loading ? 'Signing in...' : 'Sign In →'}
             </button>
-
-            {error && (
-              <p className="text-sm text-red-600 text-center">{error}</p>
-            )}
+            {error && <div className="iv-global-err">{error}</div>}
           </form>
 
-          {/* Sign Up Link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{' '}
-              <Link 
-                to="/signup" 
-                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
+          <hr className="iv-auth-divider" />
+          <p className="iv-auth-footer">
+            Don't have an account?{' '}
+            <Link to="/signup" className="iv-auth-link">Create one</Link>
+          </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export default Login;
-
