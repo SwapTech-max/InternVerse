@@ -167,7 +167,7 @@ function Navbar() {
         <div className="iv-nav-inner">
           {/* Logo */}
           <Link to="/" className="iv-logo">
-            <div className="iv-logo-icon">IV</div>
+            <img src="/internverse.png" alt="InternVerse Logo" style={{ width:'38px', height:'38px', borderRadius:'10px', objectFit:'cover' }} />
             <span className="iv-logo-text">InternVerse</span>
           </Link>
 
